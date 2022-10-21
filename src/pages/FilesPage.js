@@ -182,15 +182,15 @@ const FilesPage = () => {
             onChange={handleFileChange}
           />
         </div>
-        <div className='noscroll' style={{ position: 'absolute', top: '13vh', left: 0, zIndex: 1, height: '90vh', overflow: 'scroll' }}>
+        <div className='noscroll' style={{ position: 'absolute', top: '13vh', left: 0, zIndex: 1, height: '90vh', overflow: 'scroll', width: '100%' }}>
           <div
             style={{
               display: 'flex',
               flexWrap: 'wrap',
               gap: '2rem',
               padding: '1rem',
-              overflow: 'scroll',
               height: '100%',
+              width: '100%'
             }}
           >
             {files.map((file) => (
