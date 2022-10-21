@@ -33,6 +33,7 @@ const FilesPage = () => {
     listAll(storageRef)
       .then((res) => {
         setFiles(res.items);
+        setUploading(false);
         console.log(res.items);
       })
       .catch((err) => console.log(err));
@@ -58,25 +59,24 @@ const FilesPage = () => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    console.log(e.dataTransfer.files);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const fileToUpload = e.dataTransfer.files[0];
-      const storageRef = ref(storage, `public/${fileToUpload.name}`);
-      const task = uploadBytesResumable(storageRef, fileToUpload);
-        setUploading(true);
-      task.on(
-        'state_changed',
-        (snapshot) => {
-          let percentage =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          setUploadPercentage(percentage);
-        },
-        (error) => setErrorMessage(`Ha ocurrido un error: ${error.message}`),
-        () => {
-            setUploading(false);
-          getAllFiles();
-        }
-      );
+    setUploading(true);
+    if (e.dataTransfer.files) {
+      for (const fileToUpload of e.dataTransfer.files) {
+        const storageRef = ref(storage, `public/${fileToUpload.name}`);
+        const task = uploadBytesResumable(storageRef, fileToUpload);
+        task.on(
+          'state_changed',
+          (snapshot) => {
+            let percentage =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            setUploadPercentage(percentage);
+          },
+          (error) => setErrorMessage(`Ha ocurrido un error: ${error.message}`),
+          () => {
+          }
+        );
+        
+      }
     }
   };
 
@@ -113,13 +113,27 @@ const FilesPage = () => {
         sx={{ height: '100vh', position: 'relative' }}
         onDragEnter={handleDrag}
       >
-        {uploading &&
-            <Box sx={{ width: '100%' }}>
-              <LinearProgress sx={{height: 10}} value={uploadPercentage} />
-            </Box>
-          }
-        <div style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}>
-          
+        {uploading && (
+          <Box sx={{ width: '100%' }}>
+            <LinearProgress sx={{ height: 10 }} value={uploadPercentage} />
+          </Box>
+        )}
+        <div
+          style={{
+            display: 'flex',
+            backgroundColor: 'gainsboro',
+            gap: '1rem',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '2rem',
+            padding: '0.5rem',
+          }}
+        >
+          <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+            Para subir archivos, arrójelos en el Panel
+          </Typography>
+        </div>
+        <div style={{ position: 'absolute', top: '3rem', left: 0, zIndex: 1 }}>
           <div
             style={{
               display: 'flex',
