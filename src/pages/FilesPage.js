@@ -123,20 +123,28 @@ const FilesPage = () => {
   const handleFileChange = (e) => {
     setUploading(true);
     if (e.target.files) {
-      for (const fileToUpload of e.target.files) {
-        const storageRef = ref(storage, `public/${fileToUpload.name}`);
-        const task = uploadBytesResumable(storageRef, fileToUpload);
-        task.on(
-          'state_changed',
-          (snapshot) => {
-            let percentage =
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            setUploadPercentage(percentage);
-          },
-          (error) => setErrorMessage(`Ha ocurrido un error: ${error.message}`),
-          () => {}
-        );
-      }
+        let fileList = [];
+        for (const fileToUpload of e.target.files) {
+          fileList.push(fileToUpload);
+        }
+        fileList.map((fileToUpload, index) => {
+          const storageRef = ref(storage, `public/${fileToUpload.name}`);
+          const task = uploadBytesResumable(storageRef, fileToUpload);
+          task.on(
+            'state_changed',
+            (snapshot) => {
+              let percentage =
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              setUploadPercentage(percentage);
+            },
+            (error) => setErrorMessage(`Ha ocurrido un error: ${error.message}`),
+            () => {
+              if(index == fileList.length -1 ){
+                  getAllFiles();
+              }
+            }
+          );
+        });
     }
   };
 
