@@ -17,7 +17,7 @@ import {
   listAll,
   deleteObject,
 } from 'firebase/storage';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import './filepages.css';
 const FilesPage = () => {
@@ -27,6 +27,7 @@ const FilesPage = () => {
   const [uploading, setUploading] = useState(false);
   const [files, setFiles] = useState([]);
   const storage = getStorage();
+  const inputRef = useRef(null);
 
   const getAllFiles = () => {
     const storageRef = ref(storage, `public`);
@@ -39,10 +40,16 @@ const FilesPage = () => {
       .catch((err) => console.log(err));
   };
 
+  let intervalId;
+
   useEffect(() => {
     getAllFiles();
-    setInterval(() => getAllFiles(), 5000);
+    intervalId = setInterval(() => getAllFiles(), 10000);
+    return ()=>{
+        clearInterval(intervalId);
+    }
   }, []);
+
 
   const handleDrag = function (e) {
     e.preventDefault();
@@ -61,7 +68,11 @@ const FilesPage = () => {
     setDragActive(false);
     setUploading(true);
     if (e.dataTransfer.files) {
+      let fileList = [];
       for (const fileToUpload of e.dataTransfer.files) {
+        fileList.push(fileToUpload);
+      }
+      fileList.map((fileToUpload, index) => {
         const storageRef = ref(storage, `public/${fileToUpload.name}`);
         const task = uploadBytesResumable(storageRef, fileToUpload);
         task.on(
@@ -73,10 +84,12 @@ const FilesPage = () => {
           },
           (error) => setErrorMessage(`Ha ocurrido un error: ${error.message}`),
           () => {
+            if(index == fileList.length -1 ){
+                getAllFiles();
+            }
           }
         );
-        
-      }
+      });
     }
   };
 
@@ -100,10 +113,35 @@ const FilesPage = () => {
   };
 
   const onDeleteFile = (name) => {
+    setUploading(true);
     const storageRef = ref(storage, `public/${name}`);
     deleteObject(storageRef)
       .then(() => getAllFiles())
       .catch((err) => console.log(err));
+  };
+
+  const handleFileChange = (e) => {
+    setUploading(true);
+    if (e.target.files) {
+      for (const fileToUpload of e.target.files) {
+        const storageRef = ref(storage, `public/${fileToUpload.name}`);
+        const task = uploadBytesResumable(storageRef, fileToUpload);
+        task.on(
+          'state_changed',
+          (snapshot) => {
+            let percentage =
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            setUploadPercentage(percentage);
+          },
+          (error) => setErrorMessage(`Ha ocurrido un error: ${error.message}`),
+          () => {}
+        );
+      }
+    }
+  };
+
+  const buttonUpload = () => {
+    inputRef.current.click();
   };
 
   return (
@@ -130,8 +168,23 @@ const FilesPage = () => {
           }}
         >
           <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-            Para subir archivos, arrójelos en el Panel
+            Arroje los archivos o utilize el botón de subida
           </Typography>
+          <Button
+            variant="contained"
+            size="small"
+            color="primary"
+            onClick={buttonUpload}
+          >
+            Subir archivos
+          </Button>
+          <input
+            style={{ display: 'none' }}
+            ref={inputRef}
+            type="file"
+            multiple
+            onChange={handleFileChange}
+          />
         </div>
         <div style={{ position: 'absolute', top: '3rem', left: 0, zIndex: 1 }}>
           <div
