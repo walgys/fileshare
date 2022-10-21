@@ -156,7 +156,7 @@ const FilesPage = () => {
     <Container>
       <Paper
         elevation={2}
-        sx={{ height: '100vh', position: 'relative' }}
+        sx={{ height: '90vh', position: 'relative', overflow: 'hidden' }}
         onDragEnter={handleDrag}
       >
         {uploading && (
@@ -194,13 +194,15 @@ const FilesPage = () => {
             onChange={handleFileChange}
           />
         </div>
-        <div style={{ position: 'absolute', top: '12vh', left: 0, zIndex: 1 }}>
+        <div style={{ position: 'absolute', top: '13vh', left: 0, zIndex: 1, height: '90vh' }}>
           <div
             style={{
               display: 'flex',
               flexWrap: 'wrap',
               gap: '2rem',
               padding: '1rem',
+              overflow: 'scroll',
+              height: '100%',
             }}
           >
             {files.map((file) => (
