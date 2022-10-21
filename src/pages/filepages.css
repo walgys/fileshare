@@ -9,6 +9,10 @@
     z-index: 15;
   }
   
+  .noscroll::-webkit-scrollbar {
+    display: none;
+  }
+
   #input-file-upload {
     display: none;
   }

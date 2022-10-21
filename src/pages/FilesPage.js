@@ -70,9 +70,6 @@ const FilesPage = () => {
     if (e.dataTransfer.files) {
       let fileList = [];
       for (const fileToUpload of e.dataTransfer.files) {
-        fileList.push(fileToUpload);
-      }
-      fileList.map((fileToUpload, index) => {
         const storageRef = ref(storage, `public/${fileToUpload.name}`);
         const task = uploadBytesResumable(storageRef, fileToUpload);
         task.on(
@@ -84,30 +81,24 @@ const FilesPage = () => {
           },
           (error) => setErrorMessage(`Ha ocurrido un error: ${error.message}`),
           () => {
-            if(index == fileList.length -1 ){
-                getAllFiles();
-            }
+           
           }
         );
-      });
     }
+}
   };
 
   const downloadFile = (name) => {
     const storageRef = ref(storage, `public/${name}`);
     getDownloadURL(storageRef)
       .then((downLoadUrl) => {
-        fetch(downLoadUrl, { mode: 'no-cors' })
-          .then((res) => res.blob())
-          .then((blob) => {
-            const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
-            link.href = url;
+            link.href = downLoadUrl;
             link.download = name;
+            link.target = '_blank';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-          });
       })
       .catch((err) => console.log(err));
   };
@@ -123,11 +114,8 @@ const FilesPage = () => {
   const handleFileChange = (e) => {
     setUploading(true);
     if (e.target.files) {
-        let fileList = [];
+       
         for (const fileToUpload of e.target.files) {
-          fileList.push(fileToUpload);
-        }
-        fileList.map((fileToUpload, index) => {
           const storageRef = ref(storage, `public/${fileToUpload.name}`);
           const task = uploadBytesResumable(storageRef, fileToUpload);
           task.on(
@@ -139,12 +127,12 @@ const FilesPage = () => {
             },
             (error) => setErrorMessage(`Ha ocurrido un error: ${error.message}`),
             () => {
-              if(index == fileList.length -1 ){
-                  getAllFiles();
-              }
+            
             }
           );
-        });
+        }
+
+          
     }
   };
 
@@ -194,7 +182,7 @@ const FilesPage = () => {
             onChange={handleFileChange}
           />
         </div>
-        <div style={{ position: 'absolute', top: '13vh', left: 0, zIndex: 1, height: '90vh' }}>
+        <div className='noscroll' style={{ position: 'absolute', top: '13vh', left: 0, zIndex: 1, height: '90vh', overflow: 'scroll' }}>
           <div
             style={{
               display: 'flex',
@@ -206,7 +194,7 @@ const FilesPage = () => {
             }}
           >
             {files.map((file) => (
-              <Card sx={{ width: 250 }}>
+              <Card sx={{ width: 250, height: 120 }}>
                 <CardContent>
                   <Typography
                     sx={{ fontSize: 14 }}
