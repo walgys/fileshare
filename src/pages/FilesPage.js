@@ -171,7 +171,7 @@ const FilesPage = () => {
             gap: '1rem',
             justifyContent: 'center',
             alignItems: 'center',
-            height: '2rem',
+            height: '10vh',
             padding: '0.5rem',
           }}
         >
@@ -194,7 +194,7 @@ const FilesPage = () => {
             onChange={handleFileChange}
           />
         </div>
-        <div style={{ position: 'absolute', top: '3rem', left: 0, zIndex: 1 }}>
+        <div style={{ position: 'absolute', top: '12vh', left: 0, zIndex: 1 }}>
           <div
             style={{
               display: 'flex',
